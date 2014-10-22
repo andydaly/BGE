@@ -121,10 +121,27 @@ void Lab4::Update(float timeDelta)
 	glm::vec3 toShip2 = ship2->transform->position - ship1->transform->position;
 	toShip2 = glm::normalize(toShip2);
 	theta = glm::acos(glm::dot(Transform::basisLook, toShip2));
-	//if (toShip2.x > 0)
-	//{
-	//	theta = - theta;
-	//}
+	if (toShip2.x > 0)
+	{
+		theta = - theta;
+	}
+	
+	
+	glm::vec3 Ship2Pos = ship2->transform->position;
+
+
+	//glm::mat4 m = glm::translate(glm::mat4(1), Ship2Pos);
+	//glm::mat4 rotMatrix = glm::rotate(glm::mat4(1), theta, glm::vec3(0,1,0));
+	//glm::dot(v1, v2); // Returns a float
+	//glm::cos(thetaInRadians);
+	//glm::acos(value);
+	//glm::normalize(v);
+	// To get pi, use:
+	glm::pi<float>();
+
+
+
+
 
 	ship1->transform->world = glm::translate(glm::mat4(1), ship1->transform->position) * glm::rotate(glm::mat4(1), glm::degrees(theta), glm::vec3(0,1,0));
 }
