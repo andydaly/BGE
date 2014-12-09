@@ -9,7 +9,7 @@ namespace BGE
 	public:
 		EmptyGame();
 		~EmptyGame();
-		shared_ptr<PhysicsController> CreateAnimat(glm::vec3 position);
+		
 		bool Initialise();
 		void Update();
 	};
