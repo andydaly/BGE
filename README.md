@@ -10,8 +10,7 @@ Branch - Assignment-C11710699
 * [KinectDragon .CPP File](/BGE/KinectDragon.cpp)
 * [KinectDragon .H File](/BGE/KinectDragon.h)
 
-![Alt text](https://raw.github.com/andydaly/BGE/Assignment/Logo/blocks.png)
-
+[![Video](http://img.youtube.com/vi/2c3Q0eVbtWc/0.jpg)](https://www.youtube.com/watch?v=2c3Q0eVbtWc)
 
 For the Game Engines Assignment I plan to make use of the Person (Kinect) class and create a flying dragon.
 
@@ -20,8 +19,3 @@ For the Game Engines Assignment I plan to make use of the Person (Kinect) class 
 
 
 I plan on using the Kinect's skeletal tracking and track my movements and emulate a dragon flying.
-
-
-Finished:
-
-[![Video](http://img.youtube.com/vi/2c3Q0eVbtWc/0.jpg)](https://www.youtube.com/watch?v=2c3Q0eVbtWc)
