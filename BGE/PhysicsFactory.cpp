@@ -369,7 +369,7 @@ shared_ptr<PhysicsController> PhysicsFactory::CreateCapsuleRagdoll(glm::vec3 pos
 	shared_ptr<PhysicsController> bodypart_left_lower_arm = CreateCapsule(0.5, 1.2, glm::vec3(position.x - 3, position.y + 9, position.z), glm::quat());
 	shared_ptr<PhysicsController> bodypart_right_upper_arm = CreateCapsule(0.6, 1.2, glm::vec3(position.x + 3, position.y + 14, position.z), glm::quat());
 	shared_ptr<PhysicsController> bodypart_right_lower_arm = CreateCapsule(0.5, 1.2, glm::vec3(position.x + 3, position.y + 9, position.z), glm::quat());
-
+	
 	btTransform localA, localB;
 
 	localA.setIdentity(); localB.setIdentity();
@@ -443,6 +443,6 @@ shared_ptr<PhysicsController> PhysicsFactory::CreateCapsuleRagdoll(glm::vec3 pos
 	right_upper_arm_right_lower_arm = new btHingeConstraint(*bodypart_right_upper_arm->rigidBody, *bodypart_right_lower_arm->rigidBody, localA, localB);
 	right_upper_arm_right_lower_arm->setLimit(btScalar(-glm::half_pi<float>()), btScalar(0));
 	dynamicsWorld->addConstraint(right_upper_arm_right_lower_arm);
-
+	
 	return bodypart_spine;
 }

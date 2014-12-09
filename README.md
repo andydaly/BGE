@@ -1,33 +1,19 @@
-![Alt text](https://raw.github.com/skooter500/BGE/master/Logo/BGE_Logo_01.png)
+## Andrew's Assignment
+Andrew Daly, C11710699, Game Engines
 
-* [Course Notes](Course/index.md)
-* [Labs](Labs/index.md)
-* [Assignment](Course/assignment.md)
+Branch - Assignment-C11710699
 
-My scene graph based, C++ 3D engine that makes use of:
-* OpenGL 3 with shaders
-* GLEW
-* SDL
-* SDL_ttf
-* Bullet Physics
-* GLM
-* The Kinect SDK
-* FMOD
-* The Oculus Rift SDK
+* [Assignment .CPP File](/BGE/Assignment.cpp)
+* [Assignment .H File](/BGE/Assignment.h)
+* 
+
+![Alt text](https://raw.github.com/andydaly/BGE/Assignment/Logo/ScreenShot1.png)
 
 
-The engine supports:
+For the Game Engines Assignment I plan to make use of the Person (Kinect) class and create a flying dragon.
 
-* A C++ API inspired by XNA
-* A really cool component based scene graph inspired by Unity
-* Load simple 3D models, textures and sounds through a content pipeline
-* An API for drawing lines and text
-* Physically simulated rigid bodies and a factory for making them
-* Kinect Skeletal tracking
-* Output to the Oculus rift
+![Alt text](https://raw.github.com/andydaly/BGE/Assignment/Logo/pic1.png)
+![Alt text](https://raw.github.com/andydaly/BGE/Assignment/Logo/pic2.png)
 
-To build:
 
-* Download the dependencies from here: http://1drv.ms/1olPefQ
-* Unzip to the folder Dependencies in your project 
-* Use the included Visual Studio 2013 project files
+I plan on using the Kinect's skeletal tracking and track my movements and emulate a dragon flying.

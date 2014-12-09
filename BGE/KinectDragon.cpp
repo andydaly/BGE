@@ -1,3 +1,4 @@
+#include "KinectDragon.h"
 #include "Person.h"
 #include "Game.h"
 #include <sstream>
@@ -7,14 +8,13 @@
 #include "KinematicMotionState.h"
 #include "PhysicsGame1.h"
 #include <btBulletDynamicsCommon.h>
-#include "Assignment.h"
+#include "DragonSpawner.h"
 
 using namespace BGE;
 using namespace std;
 
 
-
-glm::vec3 NUIToGLVector(Vector4 v, bool flip)
+glm::vec3 NUIToGLVector2(Vector4 v, bool flip)
 {
 	if (flip)
 	{
@@ -26,43 +26,33 @@ glm::vec3 NUIToGLVector(Vector4 v, bool flip)
 	}
 }
 
-void CALLBACK BGE::StatusProc(HRESULT hrStatus, const OLECHAR* instanceName, const OLECHAR* uniqueDeviceName, void * pUserData)
+
+KinectDragon::KinectDragon(DragonSpawner *dragons):GameComponent()
 {
-	Person * person = (Person *)pUserData;
-	if (SUCCEEDED(hrStatus))
-	{
-		person->CreateFirstConnected();
-		person->connected = true;
-	}
-	else
-	{
-		person->tracked = false;
-		person->connected = false;
-	}
-}
-Person::Person(void) :GameComponent()
-{
+	Dragons = dragons;
 	connected = false;
 	tracked = false;
 	headCamera = true;
 	m_pNuiSensor = NULL;
 	scale = 20.0f;
 	footHeight = 0.0f;
+
 }
 
 
-Person::~Person(void)
+KinectDragon::~KinectDragon()
 {
 }
 
-bool Person::Initialise()
+
+bool KinectDragon::Initialise()
 {
 	CreateFirstConnected();
 	NuiSetDeviceStatusCallback(&StatusProc, this);
 	return GameComponent::Initialise();
 }
 
-HRESULT BGE::Person::CreateFirstConnected()
+HRESULT BGE::KinectDragon::CreateFirstConnected()
 {
 	INuiSensor * pNuiSensor = NULL;
 
@@ -120,7 +110,7 @@ HRESULT BGE::Person::CreateFirstConnected()
 }
 
 
-void Person::UpdateSkeleton(const NUI_SKELETON_DATA & skeleton)
+void KinectDragon::UpdateSkeleton(const NUI_SKELETON_DATA & skeleton)
 {
 	const Uint8 * keyState = Game::Instance()->GetKeyState();
 	static bool lastPressed = false;
@@ -142,13 +132,9 @@ void Person::UpdateSkeleton(const NUI_SKELETON_DATA & skeleton)
 		footHeight = glm::min<float>(skeleton.SkeletonPositions[NUI_SKELETON_POSITION_FOOT_RIGHT].y, skeleton.SkeletonPositions[NUI_SKELETON_POSITION_FOOT_LEFT].y);
 	}
 
-	UpdateBone(skeleton, NUI_SKELETON_POSITION_HEAD, NUI_SKELETON_POSITION_SHOULDER_CENTER);
 	UpdateBone(skeleton, NUI_SKELETON_POSITION_SHOULDER_CENTER, NUI_SKELETON_POSITION_SHOULDER_LEFT);
 	UpdateBone(skeleton, NUI_SKELETON_POSITION_SHOULDER_CENTER, NUI_SKELETON_POSITION_SHOULDER_RIGHT);
-	UpdateBone(skeleton, NUI_SKELETON_POSITION_SHOULDER_CENTER, NUI_SKELETON_POSITION_SPINE);
-	UpdateBone(skeleton, NUI_SKELETON_POSITION_SPINE, NUI_SKELETON_POSITION_HIP_CENTER);
-	UpdateBone(skeleton, NUI_SKELETON_POSITION_HIP_CENTER, NUI_SKELETON_POSITION_HIP_LEFT);
-	UpdateBone(skeleton, NUI_SKELETON_POSITION_HIP_CENTER, NUI_SKELETON_POSITION_HIP_RIGHT);
+	
 
 	UpdateBone(skeleton, NUI_SKELETON_POSITION_SHOULDER_LEFT, NUI_SKELETON_POSITION_ELBOW_LEFT);
 	UpdateBone(skeleton, NUI_SKELETON_POSITION_ELBOW_LEFT, NUI_SKELETON_POSITION_WRIST_LEFT);
@@ -158,78 +144,11 @@ void Person::UpdateSkeleton(const NUI_SKELETON_DATA & skeleton)
 	UpdateBone(skeleton, NUI_SKELETON_POSITION_ELBOW_RIGHT, NUI_SKELETON_POSITION_WRIST_RIGHT);
 	UpdateBone(skeleton, NUI_SKELETON_POSITION_WRIST_RIGHT, NUI_SKELETON_POSITION_HAND_RIGHT);
 
-	UpdateBone(skeleton, NUI_SKELETON_POSITION_HIP_LEFT, NUI_SKELETON_POSITION_KNEE_LEFT);
-	UpdateBone(skeleton, NUI_SKELETON_POSITION_KNEE_LEFT, NUI_SKELETON_POSITION_ANKLE_LEFT);
-	UpdateBone(skeleton, NUI_SKELETON_POSITION_ANKLE_LEFT, NUI_SKELETON_POSITION_FOOT_LEFT);
-
-	UpdateBone(skeleton, NUI_SKELETON_POSITION_HIP_RIGHT, NUI_SKELETON_POSITION_KNEE_RIGHT);
-	UpdateBone(skeleton, NUI_SKELETON_POSITION_KNEE_RIGHT, NUI_SKELETON_POSITION_ANKLE_RIGHT);
-	UpdateBone(skeleton, NUI_SKELETON_POSITION_ANKLE_RIGHT, NUI_SKELETON_POSITION_FOOT_RIGHT);
-
-	UpdateHand(skeleton, NUI_SKELETON_POSITION_WRIST_LEFT, NUI_SKELETON_POSITION_HAND_LEFT, 0);
-	UpdateHand(skeleton, NUI_SKELETON_POSITION_WRIST_RIGHT, NUI_SKELETON_POSITION_HAND_RIGHT, 1);
-	UpdateHead(skeleton, NUI_SKELETON_POSITION_HEAD);
+	//UpdateDragon(skeleton, NUI_SKELETON_POSITION_HEAD);
+	UpdateDragon(skeleton, NUI_SKELETON_POSITION_HIP_CENTER);
 }
 
-void Person::UpdateHand(
-	const NUI_SKELETON_DATA & skeleton,
-	NUI_SKELETON_POSITION_INDEX jointFrom,
-	NUI_SKELETON_POSITION_INDEX jointTo, int handIndex)
-{
-	NUI_SKELETON_POSITION_TRACKING_STATE jointFromState = skeleton.eSkeletonPositionTrackingState[jointFrom];
-	NUI_SKELETON_POSITION_TRACKING_STATE jointToState = skeleton.eSkeletonPositionTrackingState[jointTo];
-
-
-	if (jointFromState == NUI_SKELETON_POSITION_NOT_TRACKED || jointToState == NUI_SKELETON_POSITION_NOT_TRACKED)
-	{
-		return; // nothing to draw, one of the joints is not tracked
-	}
-
-	glm::vec3 start = NUIToGLVector(skeleton.SkeletonPositions[jointFrom], !headCamera);
-	glm::vec3 end = NUIToGLVector(skeleton.SkeletonPositions[jointTo], !headCamera);
-	start.y -= footHeight;
-	end.y -= footHeight;
-
-	start *= scale;
-	end *= scale;
-
-	glm::vec3 boneVector = end - start;
-	float boneLength = glm::length(boneVector);
-	boneVector = glm::normalize(boneVector);
-	glm::vec3 centrePos = end + ((boneVector)* 2.0f);
-	glm::vec3 axis = glm::cross(Transform::basisUp, boneVector);
-	axis = glm::normalize(axis);
-	float theta = (float)glm::acos<float>(glm::dot<float>(Transform::basisUp, boneVector));
-	glm::quat q = glm::angleAxis(glm::degrees(theta), axis);
-
-	stringstream ss;
-	ss << jointTo;
-	string boneKey = ss.str();
-
-	map<string, shared_ptr<PhysicsController>>::iterator it = boneComponents.find(boneKey);
-	shared_ptr<PhysicsController> cylController;
-	if (it == boneComponents.end())
-	{
-		cylController = Game::Instance()->physicsFactory->CreateCylinder(2.0f, 0.5f, centrePos, transform->orientation);
-		cylController->rigidBody->setCollisionFlags(cylController->rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
-		cylController->rigidBody->setActivationState(DISABLE_DEACTIVATION);
-		cylController->rigidBody->setMotionState(new KinematicMotionState(cylController->parent));
-		cylController->tag = "PersonHand";
-		boneComponents[boneKey] = cylController;
-	}
-	else
-	{
-		cylController = it->second;
-	}
-
-	hands[handIndex].pos = centrePos;
-	hands[handIndex].look = boneVector;
-	cylController->transform->position = transform->position + centrePos;
-	cylController->transform->orientation = q;
-	cylController->transform->diffuse = glm::vec3(1, 0, 1);
-}
-
-void Person::UpdateKnob(string tag, glm::vec3 pos)
+void KinectDragon::UpdateKnob(string tag, glm::vec3 pos)
 {
 	shared_ptr<PhysicsController> knobController;
 	map<string, shared_ptr<PhysicsController>>::iterator it = boneComponents.find(tag);
@@ -239,7 +158,7 @@ void Person::UpdateKnob(string tag, glm::vec3 pos)
 		knobController->rigidBody->setMotionState(new KinematicMotionState(knobController->parent));
 		knobController->tag = "HandJointController";
 		knobController->parent->tag = tag;
-		knobController->transform->diffuse = glm::vec3(1, 0, 1);
+		knobController->transform->diffuse = glm::vec3(0.2, 0.4, 0.4);
 		boneComponents[tag] = knobController;
 	}
 	else
@@ -250,7 +169,7 @@ void Person::UpdateKnob(string tag, glm::vec3 pos)
 }
 
 
-void Person::UpdateBone(
+void KinectDragon::UpdateBone(
 	const NUI_SKELETON_DATA & skeleton,
 	NUI_SKELETON_POSITION_INDEX jointFrom,
 	NUI_SKELETON_POSITION_INDEX jointTo)
@@ -264,8 +183,8 @@ void Person::UpdateBone(
 		return; // nothing to draw, one of the joints is not tracked
 	}
 
-	glm::vec3 start = NUIToGLVector(skeleton.SkeletonPositions[jointFrom], !headCamera);
-	glm::vec3 end = NUIToGLVector(skeleton.SkeletonPositions[jointTo], !headCamera);
+	glm::vec3 start = NUIToGLVector2(skeleton.SkeletonPositions[jointFrom], !headCamera);
+	glm::vec3 end = NUIToGLVector2(skeleton.SkeletonPositions[jointTo], !headCamera);
 	start.y -= footHeight;
 	end.y -= footHeight;
 
@@ -289,7 +208,9 @@ void Person::UpdateBone(
 	shared_ptr<PhysicsController> cylController;
 	if (it == boneComponents.end())
 	{
-		cylController = Game::Instance()->physicsFactory->CreateCylinder(0.5f, boneLength, centrePos, transform->orientation);
+		//cylController = Game::Instance()->physicsFactory->CreateCylinder(0.5f, boneLength, centrePos, transform->orientation);
+
+		cylController = Game::Instance()->physicsFactory->CreateBox(0.2f, 10, boneLength, centrePos, transform->orientation);
 		cylController->transform->diffuse = glm::vec3();
 
 		cylController->rigidBody->setCollisionFlags(cylController->rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
@@ -302,7 +223,7 @@ void Person::UpdateBone(
 	{
 		cylController = it->second;
 	}
-	cylController->transform->diffuse = glm::vec3(0, 0, 1);
+	cylController->transform->diffuse = glm::vec3(0.2, 0.4, 0.4);
 	cylController->transform->position = transform->position + centrePos;
 	cylController->transform->orientation = q;
 
@@ -310,7 +231,7 @@ void Person::UpdateBone(
 	UpdateKnob("" + jointTo, end);
 }
 
-void Person::UpdateHead(
+void KinectDragon::UpdateDragon(
 	const NUI_SKELETON_DATA & skeleton,
 	NUI_SKELETON_POSITION_INDEX joint)
 {
@@ -321,7 +242,7 @@ void Person::UpdateHead(
 		return; // nothing to draw, one of the joints is not tracked
 	}
 
-	glm::vec3 boneVector = NUIToGLVector(skeleton.SkeletonPositions[joint], !headCamera);
+	glm::vec3 boneVector = NUIToGLVector2(skeleton.SkeletonPositions[joint], !headCamera);
 	boneVector.y -= footHeight;
 
 	boneVector *= scale;
@@ -332,37 +253,44 @@ void Person::UpdateHead(
 	ss << joint;
 	string boneKey = ss.str();
 	map<string, shared_ptr<PhysicsController>>::iterator it = boneComponents.find(boneKey);
-	shared_ptr<PhysicsController> boxController;
+	shared_ptr<PhysicsController> DragonBody;
+
+	glm::vec3 ModelPos = glm::vec3(boneVector.x, boneVector.y, boneVector.z - 5);
+
+	//shared_ptr<Assignment> AssignmentCreator;
 	if (it == boneComponents.end())
 	{
-		boxController = Game::Instance()->physicsFactory->CreateBox(6.0f, 6.0f, 0.5f, boneVector, transform->orientation);
-		boxController->rigidBody->setCollisionFlags(boxController->rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
-		boxController->rigidBody->setActivationState(DISABLE_DEACTIVATION);
-		boxController->rigidBody->setMotionState(new KinematicMotionState(boxController->parent));
-		boxController->tag = "PersonHead";
+		
+		DragonBody = Dragons->CreateDragonRagdoll(ModelPos);
+		DragonBody->rigidBody->setCollisionFlags(DragonBody->rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+		DragonBody->rigidBody->setActivationState(DISABLE_DEACTIVATION);
+		DragonBody->rigidBody->setMotionState(new KinematicMotionState(DragonBody->parent));
+		//DragonBody->tag = "PersonHead";
 
-		boneComponents[boneKey] = boxController;
+		boneComponents[boneKey] = DragonBody;
 	}
 	else
 	{
-		boxController = it->second;
+		DragonBody = it->second;
 	}
 
 	if (headCamera)
 	{
-		Game::Instance()->camera->transform->position = boneVector + glm::vec3(0, scale * 0.2f, 0);
-		boxController->transform->position = glm::vec3(100, -100, 100);
+		//Game::Instance()->camera->transform->position = boneVector + glm::vec3(0, scale * 0.2f, 0);
+		Game::Instance()->camera->transform->position = ModelPos + glm::vec3(0, scale * 0.2f, 0);
+		DragonBody->transform->position = glm::vec3(100, -100, 100);
 	}
 	else
 	{
-		boxController->transform->position = transform->position + boneVector;
+		//boxController->transform->position = transform->position + boneVector;
+		DragonBody->transform->position = transform->position + ModelPos;
 	}
-	boxController->transform->diffuse = glm::vec3(1, 0, 1);
-	boxController->transform->orientation = q;
+	//DragonBody->transform->diffuse = glm::vec3(0.2, 0.4, 0.4);
+	//boxController->transform->orientation = q;
 
 }
 
-void Person::SkeletonFrameReady(NUI_SKELETON_FRAME* pSkeletonFrame)
+void KinectDragon::SkeletonFrameReady(NUI_SKELETON_FRAME* pSkeletonFrame)
 {
 	tracked = false;
 	for (int i = 0; i < NUI_SKELETON_COUNT; i++)
@@ -384,7 +312,7 @@ void Person::SkeletonFrameReady(NUI_SKELETON_FRAME* pSkeletonFrame)
 
 }
 
-void Person::Update()
+void KinectDragon::Update()
 {
 	if (connected)
 	{
@@ -420,7 +348,7 @@ void Person::Update()
 	GameComponent::Update();
 }
 
-void Person::SetStatusMessage(std::string message)
+void KinectDragon::SetStatusMessage(std::string message)
 {
 	Game::Instance()->PrintText(message);
 }

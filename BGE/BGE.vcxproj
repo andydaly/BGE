@@ -99,14 +99,17 @@
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Assignment.cpp" />
     <ClCompile Include="AttackingState.cpp" />
     <ClCompile Include="Buddha.cpp" />
     <ClCompile Include="Capsule.cpp" />
+    <ClCompile Include="DragonSpawner.cpp" />
     <ClCompile Include="EmptyGame.cpp" />
     <ClCompile Include="FlockingScenario.cpp" />
     <ClCompile Include="FountainEffect.cpp" />
     <ClCompile Include="IdleState.cpp" />
     <ClCompile Include="KinectAudioStream.cpp" />
+    <ClCompile Include="KinectDragon.cpp" />
     <ClCompile Include="Lab3.cpp" />
     <ClCompile Include="Lab4.cpp" />
     <ClCompile Include="Lab5.cpp" />
@@ -164,14 +167,17 @@
     <ClCompile Include="XBoxController.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Assignment.h" />
     <ClInclude Include="AttackingState.h" />
     <ClInclude Include="Buddha.h" />
     <ClInclude Include="Capsule.h" />
+    <ClInclude Include="DragonSpawner.h" />
     <ClInclude Include="EmptyGame.h" />
     <ClInclude Include="FlockingScenario.h" />
     <ClInclude Include="FountainEffect.h" />
     <ClInclude Include="IdleState.h" />
     <ClInclude Include="KinectAudioStream.h" />
+    <ClInclude Include="KinectDragon.h" />
     <ClInclude Include="Lab3.h" />
     <ClInclude Include="Lab4.h" />
     <ClInclude Include="Lab5.h" />
