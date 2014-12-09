@@ -69,7 +69,7 @@ bool Assignment::Initialise()
 
 	KinectUse = make_shared<KinectDragon>(Dragons);
 
-	//Attach(KinectUse);
+	Attach(KinectUse);
 	KinectUse->headCamera = false;
 
 
@@ -79,7 +79,11 @@ bool Assignment::Initialise()
 	setGravity(glm::vec3(0, -9, 0));
 
 
-	Dragons->CreateDragon(glm::vec3(0, 17, 10));
+	Dragons->CreateDragon(glm::vec3(-30, 15, -60));
+	Dragons->CreateDragon(glm::vec3(30, 15, -80));
+
+	
+
 	//physicsFactory->CreateCapsuleRagdoll(glm::vec3(0, 17, 10));
 	
 
@@ -92,13 +96,6 @@ bool Assignment::Initialise()
 
 	return true;
 }
-
-
-
-
-
-
-
 
 
 

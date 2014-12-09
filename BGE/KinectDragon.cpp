@@ -35,7 +35,7 @@ KinectDragon::KinectDragon(DragonSpawner *dragons):GameComponent()
 	headCamera = true;
 	m_pNuiSensor = NULL;
 	scale = 20.0f;
-	footHeight = 0.0f;
+	footHeight = -1.0f;
 
 }
 
@@ -129,7 +129,7 @@ void KinectDragon::UpdateSkeleton(const NUI_SKELETON_DATA & skeleton)
 
 	//if (footHeight == 0.0f)
 	{
-		footHeight = glm::min<float>(skeleton.SkeletonPositions[NUI_SKELETON_POSITION_FOOT_RIGHT].y, skeleton.SkeletonPositions[NUI_SKELETON_POSITION_FOOT_LEFT].y);
+		//footHeight = glm::min<float>(skeleton.SkeletonPositions[NUI_SKELETON_POSITION_FOOT_RIGHT].y, skeleton.SkeletonPositions[NUI_SKELETON_POSITION_FOOT_LEFT].y);
 	}
 
 	UpdateBone(skeleton, NUI_SKELETON_POSITION_SHOULDER_CENTER, NUI_SKELETON_POSITION_SHOULDER_LEFT);
@@ -187,6 +187,8 @@ void KinectDragon::UpdateBone(
 	glm::vec3 end = NUIToGLVector2(skeleton.SkeletonPositions[jointTo], !headCamera);
 	start.y -= footHeight;
 	end.y -= footHeight;
+
+	//start.y
 
 	start *= scale;
 	end *= scale;
@@ -314,13 +316,22 @@ void KinectDragon::SkeletonFrameReady(NUI_SKELETON_FRAME* pSkeletonFrame)
 
 void KinectDragon::Update()
 {
+	
+
 	if (connected)
 	{
+		
+
 		SetStatusMessage("Kinect is connected");
 		SetStatusMessage("Press C to toggle the head camera");
 		if (tracked)
 		{
 			SetStatusMessage("Kinect is tracking");
+			if (footHeight > -5)
+			{
+
+				footHeight -= 0.001f;
+			}
 		}
 		else
 		{
