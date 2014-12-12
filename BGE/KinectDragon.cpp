@@ -36,7 +36,9 @@ KinectDragon::KinectDragon(DragonSpawner *dragons):GameComponent()
 	m_pNuiSensor = NULL;
 	scale = 20.0f;
 	footHeight = -1.0f;
-
+	FlyUp = false;
+	WingUp = false;
+	WingDown = false;
 }
 
 
@@ -144,9 +146,102 @@ void KinectDragon::UpdateSkeleton(const NUI_SKELETON_DATA & skeleton)
 	UpdateBone(skeleton, NUI_SKELETON_POSITION_ELBOW_RIGHT, NUI_SKELETON_POSITION_WRIST_RIGHT);
 	UpdateBone(skeleton, NUI_SKELETON_POSITION_WRIST_RIGHT, NUI_SKELETON_POSITION_HAND_RIGHT);
 
+	TrackHand(skeleton, NUI_SKELETON_POSITION_HAND_LEFT, NUI_SKELETON_POSITION_SHOULDER_CENTER,1);
+	TrackHand(skeleton, NUI_SKELETON_POSITION_HAND_RIGHT, NUI_SKELETON_POSITION_SHOULDER_CENTER,2);
+
 	//UpdateDragon(skeleton, NUI_SKELETON_POSITION_HEAD);
 	UpdateDragon(skeleton, NUI_SKELETON_POSITION_HIP_CENTER);
 }
+
+
+
+void KinectDragon::TrackHand(
+	const NUI_SKELETON_DATA & skeleton,
+	NUI_SKELETON_POSITION_INDEX Hand,
+	NUI_SKELETON_POSITION_INDEX  ShoulderCentre,
+	int HandID
+	)
+{
+	NUI_SKELETON_POSITION_TRACKING_STATE jointFromState = skeleton.eSkeletonPositionTrackingState[Hand];
+	NUI_SKELETON_POSITION_TRACKING_STATE jointToState = skeleton.eSkeletonPositionTrackingState[ShoulderCentre];
+
+
+	if (jointFromState == NUI_SKELETON_POSITION_NOT_TRACKED || jointToState == NUI_SKELETON_POSITION_NOT_TRACKED)
+	{
+		return; // nothing to draw, one of the joints is not tracked
+	}
+
+
+	
+
+	glm::vec3 HandPos = NUIToGLVector2(skeleton.SkeletonPositions[Hand], !headCamera);
+	glm::vec3 ShouldersPos = NUIToGLVector2(skeleton.SkeletonPositions[ShoulderCentre], !headCamera);
+	
+
+	if ((HandPos.y > ShouldersPos.y+0.15f)&&(!WingUp))
+	{
+		//FlyUp = true;
+		WingUp = true;
+	}
+	
+
+	if ((HandPos.y > ShouldersPos.y - 0.15f) && (!WingDown))
+	{
+		//FlyUp = true;
+		WingDown = true;
+	}
+
+	cout << "Hand " << HandID << ": " << HandPos.x << ", " << HandPos.y << ", " << HandPos.z << endl;
+	cout << "Shoulder " << ShouldersPos.x << ", " << ShouldersPos.y << ", " << ShouldersPos.z << endl;
+	//HandPos.y -= footHeight;
+	//ShouldersPos.y -= footHeight;
+
+
+
+	//start *= scale;
+	//end *= scale;
+
+	//glm::vec3 boneVector = end - start;
+	//float boneLength = glm::length(boneVector);
+	//boneVector = glm::normalize(boneVector);
+	//glm::vec3 centrePos = end + ((boneVector)* 2.0f);
+	//glm::vec3 axis = glm::cross(Transform::basisUp, boneVector);
+	//axis = glm::normalize(axis);
+	//float theta = (float)glm::acos<float>(glm::dot<float>(Transform::basisUp, boneVector));
+	//glm::quat q = glm::angleAxis(glm::degrees(theta), axis);
+
+	//stringstream ss;
+	//ss << jointTo;
+	//string boneKey = ss.str();
+
+	//map<string, shared_ptr<PhysicsController>>::iterator it = boneComponents.find(boneKey);
+
+	
+
+
+
+	/*shared_ptr<PhysicsController> cylController;
+	if (it == boneComponents.end())
+	{
+		//cylController = Game::Instance()->physicsFactory->CreateCylinder(2.0f, 0.5f, centrePos, transform->orientation);
+		cylController->rigidBody->setCollisionFlags(cylController->rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+		cylController->rigidBody->setActivationState(DISABLE_DEACTIVATION);
+		cylController->rigidBody->setMotionState(new KinematicMotionState(cylController->parent));
+		cylController->tag = "PersonHand";
+		boneComponents[boneKey] = cylController;
+	}
+	else
+	{
+		cylController = it->second;
+	}
+
+	//hands[handIndex].pos = centrePos;
+	//hands[handIndex].look = boneVector;
+	cylController->transform->position = transform->position + centrePos;
+	cylController->transform->orientation = q;
+	cylController->transform->diffuse = glm::vec3(1, 0, 1);*/
+}
+
 
 void KinectDragon::UpdateKnob(string tag, glm::vec3 pos)
 {
@@ -327,10 +422,21 @@ void KinectDragon::Update()
 		if (tracked)
 		{
 			SetStatusMessage("Kinect is tracking");
-			if (footHeight > -5)
+			if ((WingUp)&&(WingDown))
 			{
+				FlyUp = true;
+				WingUp = false;
+				WingDown = false;
+			}
+			
+			if (FlyUp)
+			{
+				if (footHeight > -5)
+				{
 
-				footHeight -= 0.001f;
+					footHeight -= 0.01f;
+				}
+				FlyUp = false;
 			}
 		}
 		else

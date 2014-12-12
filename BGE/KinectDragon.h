@@ -27,7 +27,7 @@ namespace BGE
 		void SkeletonFrameReady(NUI_SKELETON_FRAME* skeletonFrame);
 		void UpdateBone(const NUI_SKELETON_DATA & skeleton, NUI_SKELETON_POSITION_INDEX jointFrom, NUI_SKELETON_POSITION_INDEX jointTo);
 		void UpdateDragon(const NUI_SKELETON_DATA & skeleton, NUI_SKELETON_POSITION_INDEX joint);
-
+		void TrackHand(const NUI_SKELETON_DATA & skeleton, NUI_SKELETON_POSITION_INDEX HandPos, NUI_SKELETON_POSITION_INDEX ShoulderCentre, int HandID);
 		void UpdateKnob(string tag, glm::vec3 pos);
 
 		map<string, std::shared_ptr<PhysicsController>> boneComponents;
@@ -36,6 +36,9 @@ namespace BGE
 		float footHeight;
 		float scale;
 		DragonSpawner * Dragons;
+		bool FlyUp;
+		bool WingUp;
+		bool WingDown;
 
 	public:
 		KinectDragon(DragonSpawner *dragons);
