@@ -193,53 +193,7 @@ void KinectDragon::TrackHand(
 
 	cout << "Hand " << HandID << ": " << HandPos.x << ", " << HandPos.y << ", " << HandPos.z << endl;
 	cout << "Shoulder " << ShouldersPos.x << ", " << ShouldersPos.y << ", " << ShouldersPos.z << endl;
-	//HandPos.y -= footHeight;
-	//ShouldersPos.y -= footHeight;
-
-
-
-	//start *= scale;
-	//end *= scale;
-
-	//glm::vec3 boneVector = end - start;
-	//float boneLength = glm::length(boneVector);
-	//boneVector = glm::normalize(boneVector);
-	//glm::vec3 centrePos = end + ((boneVector)* 2.0f);
-	//glm::vec3 axis = glm::cross(Transform::basisUp, boneVector);
-	//axis = glm::normalize(axis);
-	//float theta = (float)glm::acos<float>(glm::dot<float>(Transform::basisUp, boneVector));
-	//glm::quat q = glm::angleAxis(glm::degrees(theta), axis);
-
-	//stringstream ss;
-	//ss << jointTo;
-	//string boneKey = ss.str();
-
-	//map<string, shared_ptr<PhysicsController>>::iterator it = boneComponents.find(boneKey);
-
 	
-
-
-
-	/*shared_ptr<PhysicsController> cylController;
-	if (it == boneComponents.end())
-	{
-		//cylController = Game::Instance()->physicsFactory->CreateCylinder(2.0f, 0.5f, centrePos, transform->orientation);
-		cylController->rigidBody->setCollisionFlags(cylController->rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
-		cylController->rigidBody->setActivationState(DISABLE_DEACTIVATION);
-		cylController->rigidBody->setMotionState(new KinematicMotionState(cylController->parent));
-		cylController->tag = "PersonHand";
-		boneComponents[boneKey] = cylController;
-	}
-	else
-	{
-		cylController = it->second;
-	}
-
-	//hands[handIndex].pos = centrePos;
-	//hands[handIndex].look = boneVector;
-	cylController->transform->position = transform->position + centrePos;
-	cylController->transform->orientation = q;
-	cylController->transform->diffuse = glm::vec3(1, 0, 1);*/
 }
 
 
